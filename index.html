@@ -747,6 +747,7 @@
                 <p class="splash-welcome">在电脑端打开体验更佳</p>
                 <p class="splash-subtitle">&nbsp;</p>
                 <button id="landscapeButton" class="landscape-button">横屏观看</button>
+                <p id="landscapeCountdown" class="text-white text-sm mt-2 opacity-0 transition-opacity duration-500">15秒后将自动横屏</p>
                 <button id="startButton" class="start-button">点击开始探索</button>
                 <p id="countdownHint" class="text-white text-sm mt-4 opacity-0 transition-opacity duration-500">3秒后将自动进入首页</p>
             </div>
@@ -1871,38 +1872,104 @@
             // 根据设备类型调整滚动提示
             adjustScrollIndicators();
             
+            // 显示15秒自动横屏提示
+            const landscapeCountdown = document.getElementById('landscapeCountdown');
+            if (landscapeCountdown) {
+                landscapeCountdown.style.opacity = '1';
+            }
+            
+            // 15秒后自动横屏
+            let landscapeTimer = setTimeout(function() {
+                enterFullscreenAndLandscape();
+            }, 15000);
+            
             // 横屏观看按钮事件
             const landscapeButton = document.getElementById('landscapeButton');
             if (landscapeButton) {
                 landscapeButton.addEventListener('click', function() {
+                    // 清除自动横屏定时器
+                    if (landscapeTimer) {
+                        clearTimeout(landscapeTimer);
+                    }
                     // 强制全屏和横屏
                     enterFullscreenAndLandscape();
                 });
-                
-                // 15秒后自动横屏观看
-                setTimeout(function() {
-                    enterFullscreenAndLandscape();
-                }, 15000);
             }
         });
         
         // 强制全屏和横屏函数
         function enterFullscreenAndLandscape() {
-            // 全屏
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen();
-            } else if (document.documentElement.webkitRequestFullscreen) {
-                document.documentElement.webkitRequestFullscreen();
-            } else if (document.documentElement.msRequestFullscreen) {
-                document.documentElement.msRequestFullscreen();
+            // 尝试全屏
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(function(error) {
+                    console.log('全屏失败:', error);
+                });
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen().catch(function(error) {
+                    console.log('全屏失败:', error);
+                });
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen().catch(function(error) {
+                    console.log('全屏失败:', error);
+                });
             }
             
             // 尝试强制横屏
             if (screen.orientation && screen.orientation.lock) {
                 screen.orientation.lock('landscape').catch(function(error) {
                     console.log('横屏锁定失败:', error);
+                    // 如果锁定失败，尝试使用CSS强制横屏显示
+                    forceLandscapeCSS();
                 });
+            } else {
+                // 如果不支持orientation API，使用CSS强制横屏
+                forceLandscapeCSS();
             }
+            
+            // 隐藏横屏倒计时提示
+            const landscapeCountdown = document.getElementById('landscapeCountdown');
+            if (landscapeCountdown) {
+                landscapeCountdown.style.opacity = '0';
+            }
+        }
+        
+        // 使用CSS强制横屏显示
+        function forceLandscapeCSS() {
+            // 添加横屏样式
+            const style = document.createElement('style');
+            style.id = 'landscape-style';
+            style.textContent = `
+                @media (max-width: 768px) {
+                    html, body {
+                        transform: rotate(90deg);
+                        transform-origin: left top;
+                        width: 100vh;
+                        height: 100vw;
+                        overflow-x: hidden;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                    }
+                    
+                    .explore-page {
+                        width: 100vh;
+                        height: 100vw;
+                    }
+                    
+                    .splash-logo-container {
+                        transform: scale(0.7);
+                    }
+                }
+            `;
+            
+            // 如果已经存在样式，先移除
+            const existingStyle = document.getElementById('landscape-style');
+            if (existingStyle) {
+                existingStyle.remove();
+            }
+            
+            document.head.appendChild(style);
         }
         
         // 根据设备类型调整滚动指示器
