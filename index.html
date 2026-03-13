@@ -735,10 +735,10 @@
                 <div class="splash-right">ZHX</div>
             </div>
             <div class="splash-text">
-                <p class="splash-welcome">使用电脑端打开体验感更佳</p>
+                <p id="splashWelcome" class="splash-welcome"></p>
                 <p class="splash-subtitle">&nbsp;</p>
                 <button id="startButton" class="start-button">点击开始探索</button>
-                <p id="countdownHint" class="text-white text-sm mt-4 opacity-0 transition-opacity duration-500">3秒后将自动进入首页</p>
+                <p id="countdownHint" class="text-white text-sm mt-4 opacity-0 transition-opacity duration-500">3 秒后将自动进入首页</p>
             </div>
         </div>
     </div>
@@ -1410,6 +1410,17 @@
             // 初始化探索页面变量
             window.explorePage = document.getElementById('explorePage');
             window.startButton = document.getElementById('startButton');
+            
+            // 根据设备类型设置不同的欢迎文字
+            const isMobileDevice = window.innerWidth < 768;
+            const splashWelcome = document.getElementById('splashWelcome');
+            if (splashWelcome) {
+                if (isMobileDevice) {
+                    splashWelcome.textContent = '使用电脑端打开体验感更佳';
+                } else {
+                    splashWelcome.textContent = '欢迎来到 KDX丨ZHX 官网';
+                }
+            }
             
             // 开始自动跳转
             startAutoNavigate();
