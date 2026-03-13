@@ -224,6 +224,28 @@
             transform: scale(0.98);
         }
 
+        .landscape-button {
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            background: #ffffff;
+            color: #000000;
+            border: 2px solid #ffffff;
+            border-radius: 980px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .landscape-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .landscape-button:active {
+            transform: scale(0.98);
+        }
+
         /* 苹果按钮样式 */
         .apple-btn {
             display: inline-block;
@@ -693,6 +715,23 @@
                 padding-right: 1rem !important;
             }
         }
+        
+        /* 移动端特殊处理 - 移除定位和滚动指示器 */
+        @media (max-width: 768px) {
+            /* 移除所有滚动指示器 */
+            .absolute.bottom-12 {
+                display: none !important;
+            }
+            
+            /* 允许自由滚动 */
+            body {
+                overflow-y: auto !important;
+            }
+            
+            html {
+                overscroll-behavior-y: auto !important;
+            }
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -705,8 +744,9 @@
                 <div class="splash-right">ZHX</div>
             </div>
             <div class="splash-text">
-                <p class="splash-welcome">欢迎来到KDX丨ZHX官网</p>
+                <p class="splash-welcome">在电脑端打开体验更佳</p>
                 <p class="splash-subtitle">&nbsp;</p>
+                <button id="landscapeButton" class="landscape-button">横屏观看</button>
                 <button id="startButton" class="start-button">点击开始探索</button>
                 <p id="countdownHint" class="text-white text-sm mt-4 opacity-0 transition-opacity duration-500">3秒后将自动进入首页</p>
             </div>
@@ -719,6 +759,14 @@
             <!-- Logo -->
             <a href="#home" class="text-2xl font-bold tracking-tight hover:text-gray-600 transition-colors">KDX丨ZHX</a>
             
+            <!-- 移动端实时预览显示 -->
+            <div class="md:hidden flex items-center space-x-3">
+                <span id="currentPagePreview" class="text-sm font-medium">首页</span>
+                <button id="mobileMenuBtn" class="text-xl">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
             <!-- 桌面端导航 -->
             <div class="hidden md:flex space-x-8">
                 <a href="#home" class="text-sm font-medium hover:text-gray-600 transition-colors">首页</a>
@@ -727,8 +775,8 @@
                 <a href="#cooperation" class="text-sm font-medium hover:text-gray-600 transition-colors">合作</a>
             </div>
             
-            <!-- 移动端菜单按钮 -->
-            <button id="menuBtn" class="md:hidden text-xl">
+            <!-- 移动端菜单按钮（备用） -->
+            <button id="menuBtn" class="md:hidden text-xl hidden">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
@@ -1822,7 +1870,40 @@
             
             // 根据设备类型调整滚动提示
             adjustScrollIndicators();
+            
+            // 横屏观看按钮事件
+            const landscapeButton = document.getElementById('landscapeButton');
+            if (landscapeButton) {
+                landscapeButton.addEventListener('click', function() {
+                    // 强制全屏和横屏
+                    enterFullscreenAndLandscape();
+                });
+                
+                // 15秒后自动横屏观看
+                setTimeout(function() {
+                    enterFullscreenAndLandscape();
+                }, 15000);
+            }
         });
+        
+        // 强制全屏和横屏函数
+        function enterFullscreenAndLandscape() {
+            // 全屏
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.msRequestFullscreen) {
+                document.documentElement.msRequestFullscreen();
+            }
+            
+            // 尝试强制横屏
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').catch(function(error) {
+                    console.log('横屏锁定失败:', error);
+                });
+            }
+        }
         
         // 根据设备类型调整滚动指示器
         function adjustScrollIndicators() {
@@ -1863,101 +1944,147 @@
         // 窗口大小变化时重新调整
         window.addEventListener('resize', adjustScrollIndicators);
         
-        // 阻止页面滚动，模拟点击导航链接
-        let isScrolling = false;
-        let touchStartY = 0;
-        let touchEndY = 0;
-        
-        function handleScroll(direction) {
-            if (isScrolling) return;
+        // 实时预览功能
+        function updateCurrentPagePreview() {
+            const sections = [
+                { id: 'home', name: '首页' },
+                { id: 'about', name: '粉丝' },
+                { id: 'work', name: '作品' },
+                { id: 'cooperation', name: '合作' }
+            ];
             
-            // 找到当前可见的板块
-            const sections = ['home', 'about', 'work', 'cooperation'];
-            let currentSection = 'home';
-            
-            sections.forEach(sectionId => {
-                const section = document.getElementById(sectionId);
-                if (section) {
-                    const rect = section.getBoundingClientRect();
+            let currentPage = '首页';
+            sections.forEach(section => {
+                const element = document.getElementById(section.id);
+                if (element) {
+                    const rect = element.getBoundingClientRect();
                     if (rect.top <= 100 && rect.bottom >= 100) {
-                        currentSection = sectionId;
+                        currentPage = section.name;
                     }
                 }
             });
             
-            // 合作板块可以正常向下滑动
-            if (currentSection === 'cooperation' && direction === 'down') {
-                // 计算页面剩余滚动空间
-                const scrollTop = window.pageYOffset;
-                const windowHeight = window.innerHeight;
-                const documentHeight = document.documentElement.scrollHeight;
-                const remainingScroll = documentHeight - (scrollTop + windowHeight);
-                
-                // 如果还有剩余空间，允许滚动
-                if (remainingScroll > 50) {
-                    return; // 允许滚动到底部
-                }
+            const previewElement = document.getElementById('currentPagePreview');
+            if (previewElement) {
+                previewElement.textContent = currentPage;
             }
-            
-            // 标记正在滚动
-            isScrolling = true;
-            
-            // 根据滚动方向模拟点击导航链接
-            if (direction === 'down') {
-                if (currentSection === 'home') {
-                    document.querySelector('a[href="#about"]').click();
-                } else if (currentSection === 'about') {
-                    document.querySelector('a[href="#work"]').click();
-                } else if (currentSection === 'work') {
-                    document.querySelector('a[href="#cooperation"]').click();
-                }
-            } else {
-                // 向上滑时点击右上角对应的导航链接
-                if (currentSection === 'cooperation') {
-                    // 在合作页面向上滑，点击作品
-                    document.querySelector('nav a[href="#work"]').click();
-                } else if (currentSection === 'work') {
-                    // 在作品页面向上滑，点击粉丝
-                    document.querySelector('nav a[href="#about"]').click();
-                } else if (currentSection === 'about') {
-                    // 在粉丝页面向上滑，点击首页
-                    document.querySelector('nav a[href="#home"]').click();
-                }
-            }
-            
-            // 1 秒后允许再次滚动
-            setTimeout(() => {
-                isScrolling = false;
-            }, 1000);
         }
         
-        // 桌面端滚轮事件
-        window.addEventListener('wheel', function(e) {
-            if (isScrolling) return;
-            
-            e.preventDefault();
-            const scrollDirection = e.deltaY > 0 ? 'down' : 'up';
-            handleScroll(scrollDirection);
-        }, { passive: false });
+        // 监听滚动事件更新实时预览
+        window.addEventListener('scroll', updateCurrentPagePreview);
         
-        // 移动端触摸事件
-        document.addEventListener('touchstart', function(e) {
-            touchStartY = e.touches[0].clientY;
-        }, { passive: true });
+        // 初始化实时预览
+        updateCurrentPagePreview();
         
-        document.addEventListener('touchend', function(e) {
-            if (isScrolling) return;
+        // 检查是否为移动端
+        function isMobile() {
+            return window.innerWidth < 768;
+        }
+        
+        // 桌面端滚动处理
+        if (!isMobile()) {
+            // 阻止页面滚动，模拟点击导航链接
+            let isScrolling = false;
+            let touchStartY = 0;
+            let touchEndY = 0;
             
-            touchEndY = e.changedTouches[0].clientY;
-            const swipeDistance = touchStartY - touchEndY;
-            
-            // 滑动距离超过 50px 才触发
-            if (Math.abs(swipeDistance) > 50) {
-                e.preventDefault();
-                const swipeDirection = swipeDistance > 0 ? 'down' : 'up';
-                handleScroll(swipeDirection);
+            function handleScroll(direction) {
+                if (isScrolling) return;
+                
+                // 找到当前可见的板块
+                const sections = ['home', 'about', 'work', 'cooperation'];
+                let currentSection = 'home';
+                
+                sections.forEach(sectionId => {
+                    const section = document.getElementById(sectionId);
+                    if (section) {
+                        const rect = section.getBoundingClientRect();
+                        if (rect.top <= 100 && rect.bottom >= 100) {
+                            currentSection = sectionId;
+                        }
+                    }
+                });
+                
+                // 合作板块可以正常向下滑动
+                if (currentSection === 'cooperation' && direction === 'down') {
+                    // 计算页面剩余滚动空间
+                    const scrollTop = window.pageYOffset;
+                    const windowHeight = window.innerHeight;
+                    const documentHeight = document.documentElement.scrollHeight;
+                    const remainingScroll = documentHeight - (scrollTop + windowHeight);
+                    
+                    // 如果还有剩余空间，允许滚动
+                    if (remainingScroll > 50) {
+                        return; // 允许滚动到底部
+                    }
+                }
+                
+                // 标记正在滚动
+                isScrolling = true;
+                
+                // 根据滚动方向模拟点击导航链接
+                if (direction === 'down') {
+                    if (currentSection === 'home') {
+                        document.querySelector('a[href="#about"]').click();
+                    } else if (currentSection === 'about') {
+                        document.querySelector('a[href="#work"]').click();
+                    } else if (currentSection === 'work') {
+                        document.querySelector('a[href="#cooperation"]').click();
+                    }
+                } else {
+                    // 向上滑时点击右上角对应的导航链接
+                    if (currentSection === 'cooperation') {
+                        // 在合作页面向上滑，点击作品
+                        document.querySelector('nav a[href="#work"]').click();
+                    } else if (currentSection === 'work') {
+                        // 在作品页面向上滑，点击粉丝
+                        document.querySelector('nav a[href="#about"]').click();
+                    } else if (currentSection === 'about') {
+                        // 在粉丝页面向上滑，点击首页
+                        document.querySelector('nav a[href="#home"]').click();
+                    }
+                }
+                
+                // 1 秒后允许再次滚动
+                setTimeout(() => {
+                    isScrolling = false;
+                }, 1000);
             }
-        }, { passive: false });
+            
+            // 桌面端滚轮事件
+            window.addEventListener('wheel', function(e) {
+                if (isScrolling) return;
+                
+                e.preventDefault();
+                const scrollDirection = e.deltaY > 0 ? 'down' : 'up';
+                handleScroll(scrollDirection);
+            }, { passive: false });
+            
+            // 桌面端触摸事件（平板等大屏设备）
+            document.addEventListener('touchstart', function(e) {
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            document.addEventListener('touchend', function(e) {
+                if (isScrolling) return;
+                
+                touchEndY = e.changedTouches[0].clientY;
+                const swipeDistance = touchStartY - touchEndY;
+                
+                // 滑动距离超过 50px 才触发
+                if (Math.abs(swipeDistance) > 50) {
+                    e.preventDefault();
+                    const swipeDirection = swipeDistance > 0 ? 'down' : 'up';
+                    handleScroll(swipeDirection);
+                }
+            }, { passive: false });
+        }
+        
+        // 移动端菜单按钮事件
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('hidden');
+        });
         
         function showSuccessMessage() {
             const form = document.querySelector('form[action*="formsubmit.co"]');
