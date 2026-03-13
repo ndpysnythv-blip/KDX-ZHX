@@ -103,6 +103,14 @@
             scroll-behavior: smooth;
         }
         
+        /* 桌面端完全阻止滚动 */
+        @media (min-width: 769px) {
+            html, body {
+                overflow: hidden !important;
+                overscroll-behavior-y: none !important;
+            }
+        }
+        
         /* 允许输入框和文本区域选择 */
         input, textarea, [contenteditable] {
             -webkit-user-select: text;
@@ -591,6 +599,11 @@
         
         /* 移动端优化 */
         @media (max-width: 768px) {
+            /* 移动端 Logo 颜色改为纯黑色 */
+            #navLogo {
+                color: #000000 !important;
+            }
+            
             .section-title {
                 font-size: 2rem !important;
             }
@@ -734,7 +747,7 @@
     <nav id="navbar" class="fixed top-0 left-0 w-full z-50 transition-all duration-700 py-4 px-6 md:px-12">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <!-- Logo -->
-            <a href="#home" class="text-2xl font-bold tracking-tight hover:text-gray-600 transition-colors">KDX丨ZHX</a>
+            <a id="navLogo" href="#" class="text-2xl font-bold tracking-tight hover:text-gray-600 transition-colors">KDX丨ZHX</a>
             
             <!-- 移动端实时预览显示 -->
             <div class="md:hidden flex items-center space-x-3">
@@ -1157,7 +1170,7 @@
                             </div>
                             <div>
                                 <h3 class="text-xl font-bold mb-2">抖音</h3>
-                                <p class="text-gray-700">@KDX_ZHX</p>
+                                <p class="text-gray-700">HJ_Signal</p>
                             </div>
                         </div>
                         
@@ -1167,7 +1180,7 @@
                             </div>
                             <div>
                                 <h3 class="text-xl font-bold mb-2">闲鱼</h3>
-                                <p class="text-gray-700">KDX_ZHX</p>
+                                <p class="text-gray-700">KDXZHX</p>
                             </div>
                         </div>
                         
@@ -1219,6 +1232,94 @@
         </div>
     </section>
     
+    <!-- 密码输入弹窗 -->
+    <div id="passwordModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[999998] hidden items-center justify-center">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <h3 class="text-2xl font-bold mb-2">管理后台</h3>
+                <p class="text-gray-600">请输入密码以访问管理页面</p>
+            </div>
+            <div class="mb-6">
+                <input type="password" id="adminPassword" placeholder="请输入密码" class="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300">
+            </div>
+            <div class="flex gap-4">
+                <button id="cancelPasswordBtn" class="flex-1 apple-btn apple-btn-light py-3">取消</button>
+                <button id="submitPasswordBtn" class="flex-1 apple-btn apple-btn-dark py-3">确认</button>
+            </div>
+            <p id="passwordError" class="text-red-500 text-sm mt-4 text-center hidden">密码错误，请重试</p>
+        </div>
+    </div>
+
+    <!-- 管理页面 -->
+    <div id="adminPage" class="fixed inset-0 bg-white z-[999999] hidden overflow-y-auto">
+        <div class="max-w-7xl mx-auto px-6 py-12">
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold">管理后台</h1>
+                <button id="closeAdminBtn" class="apple-btn apple-btn-light">
+                    <i class="fas fa-times mr-2"></i>关闭
+                </button>
+            </div>
+            
+            <!-- 统计数据卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div class="bg-neutral rounded-3xl p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">今日访问</p>
+                            <p class="text-3xl font-bold" id="todayVisits">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center text-white">
+                            <i class="fas fa-eye text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-neutral rounded-3xl p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">总点击数</p>
+                            <p class="text-3xl font-bold" id="totalClicks">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center text-white">
+                            <i class="fas fa-mouse-pointer text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-neutral rounded-3xl p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm mb-1">合作消息</p>
+                            <p class="text-3xl font-bold" id="totalMessages">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center text-white">
+                            <i class="fas fa-envelope text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 访问统计图表 -->
+            <div class="bg-white rounded-3xl shadow-lg p-6 mb-12">
+                <h2 class="text-xl font-bold mb-4">访问统计（近7天）</h2>
+                <div class="h-64">
+                    <canvas id="adminStatsChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 合作消息列表 -->
+            <div class="bg-white rounded-3xl shadow-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">合作消息</h2>
+                    <button id="clearMessagesBtn" class="apple-btn apple-btn-light text-sm py-2 px-4">
+                        <i class="fas fa-trash mr-2"></i>清空消息
+                    </button>
+                </div>
+                <div id="messagesList" class="space-y-4">
+                    <p class="text-gray-500 text-center py-8">暂无合作消息</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 页脚 -->
     <footer class="py-12 bg-black text-white px-6 md:px-12">
         <div class="max-w-7xl mx-auto">
@@ -1240,13 +1341,347 @@
 
     <!-- JavaScript -->
     <script>
+        // ========== 管理后台相关功能 ==========
+        const ADMIN_PASSWORD = 'KZ0718';
+        let logoClickCount = 0;
+        let logoClickTimer = null;
+
+        // 打开密码弹窗
+        function openPasswordModal() {
+            const modal = document.getElementById('passwordModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('passwordError').classList.add('hidden');
+        }
+
+        // 关闭密码弹窗
+        function closePasswordModal() {
+            const modal = document.getElementById('passwordModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // 打开管理页面
+        function openAdminPage() {
+            document.getElementById('adminPage').classList.remove('hidden');
+            loadAdminData();
+        }
+
+        // 关闭管理页面
+        function closeAdminPage() {
+            document.getElementById('adminPage').classList.add('hidden');
+        }
+
+        // ========== 统计功能 ==========
+        function getTodayKey() {
+            const today = new Date();
+            return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+        }
+
+        // 记录访问
+        function recordVisit() {
+            const todayKey = getTodayKey();
+            let visitData = JSON.parse(localStorage.getItem('visitData') || '{}');
+            
+            if (!visitData[todayKey]) {
+                visitData[todayKey] = 0;
+            }
+            visitData[todayKey]++;
+            
+            localStorage.setItem('visitData', JSON.stringify(visitData));
+        }
+
+        // 记录点击
+        function recordClick() {
+            let totalClicks = parseInt(localStorage.getItem('totalClicks') || '0');
+            totalClicks++;
+            localStorage.setItem('totalClicks', totalClicks.toString());
+        }
+
+        // 全局点击监听
+        document.addEventListener('click', recordClick);
+
+        // 页面加载时记录访问
+        recordVisit();
+
+        // ========== 合作消息保存 ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化探索页面变量
+            window.explorePage = document.getElementById('explorePage');
+            window.startButton = document.getElementById('startButton');
+            
+            // 开始自动跳转
+            startAutoNavigate();
+            
+            // 探索页面点击事件
+            const explorePage = window.explorePage;
+            const startButton = window.startButton;
+            let exploreClickCount = 0;
+            let exploreClickTimer;
+            
+            function resetExploreClickCount() {
+                exploreClickCount = 0;
+                clearTimeout(exploreClickTimer);
+            }
+            
+            if (explorePage) {
+                explorePage.addEventListener('click', (e) => {
+                    // 如果点击的是开始按钮，不计数
+                    if (e.target === startButton || e.target.closest('.start-button')) {
+                        return;
+                    }
+                    
+                    // 增加点击计数
+                    exploreClickCount++;
+                    
+                    // 3秒内点击3次以上，自动跳转到首页
+                    if (exploreClickCount >= 3) {
+                        clearTimeout(autoNavigateTimeout);
+                        clearInterval(countdownInterval);
+                        
+                        // 开始过渡：背景从黑色渐变到白色，同时文字淡出
+                        explorePage.classList.add('transitioning');
+                        
+                        // 等待1.5秒让过渡完全完成
+                        setTimeout(() => {
+                            // 隐藏探索页面
+                            explorePage.style.display = 'none';
+                            
+                            // 立即初始化滚动动画
+                            animateOnScroll();
+                        }, 1500);
+                        
+                        // 重置计数器
+                        resetExploreClickCount();
+                    } else {
+                        // 3秒后重置计数器
+                        clearTimeout(exploreClickTimer);
+                        exploreClickTimer = setTimeout(resetExploreClickCount, 3000);
+                    }
+                });
+            }
+            
+            if (startButton) {
+                startButton.addEventListener('click', () => {
+                    clearTimeout(autoNavigateTimeout);
+                    clearInterval(countdownInterval);
+                    
+                    // 开始过渡：背景从黑色渐变到白色，同时文字淡出
+                    explorePage.classList.add('transitioning');
+                    
+                    // 等待1.5秒让过渡完全完成
+                    setTimeout(() => {
+                        // 隐藏探索页面
+                        explorePage.style.display = 'none';
+                        
+                        // 立即初始化滚动动画，而不是等16秒
+                        animateOnScroll();
+                        
+                        // 首页动画会通过scroll动画自动触发
+                    }, 1500); // 等待1.5秒让背景完全变成白色
+                });
+            }
+
+            // Logo 点击事件（只触发赞助彩蛋）
+            const navLogo = document.getElementById('navLogo');
+            if (navLogo) {
+                navLogo.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    triggerEasterEgg('logo');
+                });
+            }
+            
+            // 首页链接点击计数（连续多次点击触发密码输入）
+            const homeLinks = document.querySelectorAll('a[href="#home"]');
+            let homeClickCount = 0;
+            let homeClickTimer = null;
+            
+            homeLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    // 正常的锚点跳转已经在其他地方处理
+                    // 这里只处理连续点击逻辑
+                    homeClickCount++;
+                    
+                    if (homeClickTimer) {
+                        clearTimeout(homeClickTimer);
+                    }
+                    
+                    if (homeClickCount >= 5) {
+                        // 连续点击 5 次，打开密码输入框
+                        openPasswordModal();
+                        homeClickCount = 0;
+                    } else {
+                        homeClickTimer = setTimeout(() => {
+                            homeClickCount = 0;
+                        }, 1000);
+                    }
+                });
+            });
+
+            // 密码验证
+            const submitPasswordBtn = document.getElementById('submitPasswordBtn');
+            if (submitPasswordBtn) {
+                submitPasswordBtn.addEventListener('click', () => {
+                    const inputPassword = document.getElementById('adminPassword').value.trim();
+                    const errorEl = document.getElementById('passwordError');
+                    
+                    console.log('输入密码:', inputPassword);
+                    console.log('正确密码:', ADMIN_PASSWORD);
+                    console.log('是否匹配:', inputPassword === ADMIN_PASSWORD);
+                    
+                    if (inputPassword === ADMIN_PASSWORD) {
+                        closePasswordModal();
+                        openAdminPage();
+                    } else {
+                        errorEl.classList.remove('hidden');
+                    }
+                });
+            }
+
+            const cancelPasswordBtn = document.getElementById('cancelPasswordBtn');
+            if (cancelPasswordBtn) {
+                cancelPasswordBtn.addEventListener('click', closePasswordModal);
+            }
+
+            const closeAdminBtn = document.getElementById('closeAdminBtn');
+            if (closeAdminBtn) {
+                closeAdminBtn.addEventListener('click', closeAdminPage);
+            }
+
+            const clearMessagesBtn = document.getElementById('clearMessagesBtn');
+            if (clearMessagesBtn) {
+                clearMessagesBtn.addEventListener('click', () => {
+                    if (confirm('确定要清空所有合作消息吗？')) {
+                        localStorage.removeItem('cooperationMessages');
+                        loadAdminData();
+                    }
+                });
+            }
+
+            const form = document.querySelector('form[action*="formsubmit.co"]');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const name = document.getElementById('name').value;
+                    const email = document.getElementById('email').value;
+                    const message = document.getElementById('message').value;
+                    
+                    saveCooperationMessage({
+                        name,
+                        email,
+                        message,
+                        timestamp: new Date().toISOString()
+                    });
+                });
+            }
+        });
+
+        function saveCooperationMessage(msg) {
+            let messages = JSON.parse(localStorage.getItem('cooperationMessages') || '[]');
+            messages.unshift(msg);
+            localStorage.setItem('cooperationMessages', JSON.stringify(messages));
+        }
+
+        // ========== 管理页面数据加载 ==========
+        let adminStatsChart = null;
+
+        function loadAdminData() {
+            const todayKey = getTodayKey();
+            const visitData = JSON.parse(localStorage.getItem('visitData') || '{}');
+            const totalClicks = parseInt(localStorage.getItem('totalClicks') || '0');
+            const messages = JSON.parse(localStorage.getItem('cooperationMessages') || '[]');
+
+            document.getElementById('todayVisits').textContent = visitData[todayKey] || 0;
+            document.getElementById('totalClicks').textContent = totalClicks;
+            document.getElementById('totalMessages').textContent = messages.length;
+
+            renderAdminStatsChart(visitData);
+            renderMessagesList(messages);
+        }
+
+        function renderAdminStatsChart(visitData) {
+            const ctx = document.getElementById('adminStatsChart');
+            if (!ctx) return;
+
+            const labels = [];
+            const data = [];
+            const today = new Date();
+
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                const key = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+                labels.push(`${date.getMonth() + 1}/${date.getDate()}`);
+                data.push(visitData[key] || 0);
+            }
+
+            if (adminStatsChart) {
+                adminStatsChart.destroy();
+            }
+
+            adminStatsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '访问次数',
+                        data: data,
+                        backgroundColor: 'rgba(0, 113, 227, 0.8)',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function renderMessagesList(messages) {
+            const container = document.getElementById('messagesList');
+            if (messages.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">暂无合作消息</p>';
+                return;
+            }
+
+            container.innerHTML = messages.map((msg, index) => {
+                const date = new Date(msg.timestamp);
+                const dateStr = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+                
+                return `
+                    <div class="bg-neutral rounded-2xl p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-bold text-lg">${msg.name}</h3>
+                                <p class="text-gray-500 text-sm">${msg.email}</p>
+                            </div>
+                            <p class="text-gray-400 text-sm">${dateStr}</p>
+                        </div>
+                        <p class="text-gray-700">${msg.message}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('clearMessagesBtn').addEventListener('click', () => {
+            if (confirm('确定要清空所有合作消息吗？')) {
+                localStorage.removeItem('cooperationMessages');
+                loadAdminData();
+            }
+        });
+
         // 1. 探索页面
-        const explorePage = document.getElementById('explorePage');
-        const startButton = document.getElementById('startButton');
-        
-        // 自动跳转到首页（10-15秒随机时间）
         let autoNavigateTimeout;
         let countdownInterval;
+        let explorePage;
+        let startButton;
+        
         function startAutoNavigate() {
             const randomTime = 10000 + Math.random() * 5000; // 10-15秒
             const hintTime = randomTime - 5000; // 5秒前显示提示
@@ -1272,7 +1707,8 @@
             
             // 自动进入
             autoNavigateTimeout = setTimeout(() => {
-                if (!explorePage.classList.contains('transitioning')) {
+                const explorePage = window.explorePage;
+                if (explorePage && !explorePage.classList.contains('transitioning')) {
                     // 开始过渡：背景从黑色渐变到白色，同时文字淡出
                     explorePage.classList.add('transitioning');
                     
@@ -1289,74 +1725,9 @@
                 }
             }, randomTime);
         }
-        
-        startAutoNavigate();
 
-        // 探索页面点击计数器
-        let exploreClickCount = 0;
-        let exploreClickTimer;
-        
-        // 重置点击计数器
-        function resetExploreClickCount() {
-            exploreClickCount = 0;
-            clearTimeout(exploreClickTimer);
-        }
-        
-        // 探索页面点击事件
-        explorePage.addEventListener('click', (e) => {
-            // 如果点击的是开始按钮，不计数
-            if (e.target === startButton || e.target.closest('.start-button')) {
-                return;
-            }
-            
-            // 增加点击计数
-            exploreClickCount++;
-            
-            // 3秒内点击3次以上，自动跳转到首页
-            if (exploreClickCount >= 3) {
-                clearTimeout(autoNavigateTimeout);
-                clearInterval(countdownInterval);
-                
-                // 开始过渡：背景从黑色渐变到白色，同时文字淡出
-                explorePage.classList.add('transitioning');
-                
-                // 等待1.5秒让过渡完全完成
-                setTimeout(() => {
-                    // 隐藏探索页面
-                    explorePage.style.display = 'none';
-                    
-                    // 立即初始化滚动动画
-                    animateOnScroll();
-                }, 1500);
-                
-                // 重置计数器
-                resetExploreClickCount();
-            } else {
-                // 3秒后重置计数器
-                clearTimeout(exploreClickTimer);
-                exploreClickTimer = setTimeout(resetExploreClickCount, 3000);
-            }
-        });
-        
-        startButton.addEventListener('click', () => {
-            clearTimeout(autoNavigateTimeout);
-            clearInterval(countdownInterval);
-            
-            // 开始过渡：背景从黑色渐变到白色，同时文字淡出
-            explorePage.classList.add('transitioning');
-            
-            // 等待1.5秒让过渡完全完成
-            setTimeout(() => {
-                // 隐藏探索页面
-                explorePage.style.display = 'none';
-                
-                // 立即初始化滚动动画，而不是等16秒
-                animateOnScroll();
-                
-                // 首页动画会通过scroll动画自动触发
-            }, 1500); // 等待1.5秒让背景完全变成白色
-        });
 
+        
         // 2. 导航栏滚动效果
         const navbar = document.getElementById('navbar');
         window.addEventListener('scroll', () => {
@@ -1439,6 +1810,11 @@
         // 5. 平滑滚动到锚点
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
+                // 如果是 navLogo，不处理锚点跳转
+                if (this.id === 'navLogo') {
+                    return;
+                }
+                
                 e.preventDefault();
                 const targetId = this.getAttribute('href');
                 const targetElement = document.querySelector(targetId);
@@ -1550,13 +1926,7 @@
             }
         });
         
-        // 2. Logo点击直接回到首页
-        const logoElements = document.querySelectorAll('a[href="#home"]');
-        logoElements.forEach(logo => {
-            logo.addEventListener('click', (e) => {
-                // 直接回到首页，取消赞助弹窗
-            });
-        });
+
         
         // 3. 首页图片彩蛋
         const homeImage = document.getElementById('homeImage');
@@ -1925,17 +2295,20 @@
             return window.innerWidth < 768;
         }
         
-        // 桌面端滚动处理
+        // 桌面端滚动处理 - 完全重写
         if (!isMobile()) {
-            // 阻止页面滚动，模拟点击导航链接
             let isScrolling = false;
             let touchStartY = 0;
             let touchEndY = 0;
+            let lastScrollTime = 0;
             
             function handleScroll(direction) {
-                if (isScrolling) return;
+                const now = Date.now();
                 
-                // 找到当前可见的板块
+                if (isScrolling || now - lastScrollTime < 800) {
+                    return;
+                }
+                
                 const sections = ['home', 'about', 'work', 'cooperation'];
                 let currentSection = 'home';
                 
@@ -1943,30 +2316,15 @@
                     const section = document.getElementById(sectionId);
                     if (section) {
                         const rect = section.getBoundingClientRect();
-                        if (rect.top <= 100 && rect.bottom >= 100) {
+                        if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
                             currentSection = sectionId;
                         }
                     }
                 });
                 
-                // 合作板块可以正常向下滑动
-                if (currentSection === 'cooperation' && direction === 'down') {
-                    // 计算页面剩余滚动空间
-                    const scrollTop = window.pageYOffset;
-                    const windowHeight = window.innerHeight;
-                    const documentHeight = document.documentElement.scrollHeight;
-                    const remainingScroll = documentHeight - (scrollTop + windowHeight);
-                    
-                    // 如果还有剩余空间，允许滚动
-                    if (remainingScroll > 50) {
-                        return; // 允许滚动到底部
-                    }
-                }
-                
-                // 标记正在滚动
                 isScrolling = true;
+                lastScrollTime = now;
                 
-                // 根据滚动方向模拟点击导航链接
                 if (direction === 'down') {
                     if (currentSection === 'home') {
                         document.querySelector('a[href="#about"]').click();
@@ -1976,38 +2334,35 @@
                         document.querySelector('a[href="#cooperation"]').click();
                     }
                 } else {
-                    // 向上滑时点击右上角对应的导航链接
                     if (currentSection === 'cooperation') {
-                        // 在合作页面向上滑，点击作品
                         document.querySelector('nav a[href="#work"]').click();
                     } else if (currentSection === 'work') {
-                        // 在作品页面向上滑，点击粉丝
                         document.querySelector('nav a[href="#about"]').click();
                     } else if (currentSection === 'about') {
-                        // 在粉丝页面向上滑，点击首页
                         document.querySelector('nav a[href="#home"]').click();
                     }
                 }
                 
-                // 1 秒后允许再次滚动
                 setTimeout(() => {
                     isScrolling = false;
-                }, 1000);
+                }, 800);
             }
             
-            // 桌面端滚轮事件
             window.addEventListener('wheel', function(e) {
-                if (isScrolling) return;
-                
                 e.preventDefault();
+                e.stopPropagation();
                 const scrollDirection = e.deltaY > 0 ? 'down' : 'up';
                 handleScroll(scrollDirection);
-            }, { passive: false });
+            }, { passive: false, capture: true });
             
-            // 桌面端触摸事件（平板等大屏设备）
+            document.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }, { passive: false, capture: true });
+            
             document.addEventListener('touchstart', function(e) {
                 touchStartY = e.touches[0].clientY;
-            }, { passive: true });
+            }, { passive: true, capture: true });
             
             document.addEventListener('touchend', function(e) {
                 if (isScrolling) return;
@@ -2015,13 +2370,13 @@
                 touchEndY = e.changedTouches[0].clientY;
                 const swipeDistance = touchStartY - touchEndY;
                 
-                // 滑动距离超过 50px 才触发
                 if (Math.abs(swipeDistance) > 50) {
                     e.preventDefault();
+                    e.stopPropagation();
                     const swipeDirection = swipeDistance > 0 ? 'down' : 'up';
                     handleScroll(swipeDirection);
                 }
-            }, { passive: false });
+            }, { passive: false, capture: true });
         }
         
         // 移动端菜单按钮事件
