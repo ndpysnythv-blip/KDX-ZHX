@@ -177,7 +177,7 @@
 
         .splash-left {
             opacity: 0;
-            transform: translateY(-100px);
+            transform: translateX(-50vw);
             animation: leftSlideInSimple 2s cubic-bezier(0.34, 1.56, 0.64, 1) 1.3s forwards;
             text-shadow: 0 0 40px rgba(255, 255, 255, 0.3);
             margin-right: 0.3em;
@@ -185,7 +185,7 @@
 
         .splash-right {
             opacity: 0;
-            transform: translateY(100px);
+            transform: translateX(50vw);
             animation: rightSlideInSimple 2s cubic-bezier(0.34, 1.56, 0.64, 1) 1.3s forwards;
             text-shadow: 0 0 40px rgba(255, 255, 255, 0.3);
             margin-left: 0.3em;
@@ -469,22 +469,22 @@
         @keyframes leftSlideInSimple {
             0% { 
                 opacity: 0; 
-                transform: translateY(-100px) scale(0.8);
+                transform: translateX(-50vw) scale(0.8);
             }
             100% { 
                 opacity: 1; 
-                transform: translateY(0) scale(1);
+                transform: translateX(0) scale(1);
             }
         }
         
         @keyframes rightSlideInSimple {
             0% { 
                 opacity: 0; 
-                transform: translateY(100px) scale(0.8);
+                transform: translateX(50vw) scale(0.8);
             }
             100% { 
                 opacity: 1; 
-                transform: translateY(0) scale(1);
+                transform: translateX(0) scale(1);
             }
         }
         
